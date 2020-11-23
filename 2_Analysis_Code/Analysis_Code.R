@@ -147,6 +147,76 @@ p_wet_mass_x_site <- ggplot(aes(x = animal_wet_mass_g,
 
 p_wet_mass_x_site
 
+# RMR Analysis (Test Volume): effects of site and habitat  --------------------
+# Model selection: Fit several reasonable GLMMs for fixed effects on volumetric
+# oxygen consumption rate using Restricted Maximum Likelihood. 
+f1 <- glmmTMB(volumetric_rate ~ log(spheroid.volume.ml) + (1 | date/chamber_id), 
+              data = dat_filtered,
+              family = gaussian(link = "log"),
+              REML = TRUE)
+f2 <- update(f1, formula = . ~ log(spheroid.volume.ml) + habitat + (1 | date/chamber_id))
+f3 <- update(f1, formula = . ~ log(spheroid.volume.ml) + habitat + site + (1 | date/chamber_id))
+f4 <- update(f1, formula = . ~ log(spheroid.volume.ml) * habitat + site + (1 | date/chamber_id))
+f5 <- update(f1, formula = . ~ log(spheroid.volume.ml) + habitat * site + (1 | date/chamber_id))
+f6 <- update(f1, formula = . ~ log(spheroid.volume.ml) * habitat * site + (1 | date/chamber_id))
+f7 <- update(f1, formula = . ~ log(spheroid.volume.ml) : habitat + site + (1 | date/chamber_id))
+f8 <- update(f1, formula = . ~ log(spheroid.volume.ml) : habitat : site + (1 | date/chamber_id))
+f9 <- update(f1, formula = . ~ log(spheroid.volume.ml) : habitat * site + (1 | date/chamber_id))
+
+# Calculate Second-order Akaike Information Criterion for various model fits.
+AICc(f1, f2, f3, f4, f5, f6, f7, f8, f9)
+
+f5 <- update(f5, REML = FALSE)
+fit_glmmTMB <- f5
+# Model diagnostics
+simulation_output <- simulateResiduals(fit_glmmTMB, n = 250)
+
+# Plot scaled residuals:
+plot(simulation_output)
+
+# Test for uniformity, outliers, and dispersion:
+testResiduals(simulation_output)
+
+# Run Analysis of Deviance (Type III Wald chisquare tests)
+volume_x_site_anova <- glmmTMB:::Anova.glmmTMB(
+  fit_glmmTMB,
+  type = c("III"),
+  test.statistic = c("Chisq"),
+  component = "cond"
+)
+
+# Render test results
+volume_x_site_anova
+
+# Visualize predictions and data 
+fixed_predictions <- predict(object = fit_glmmTMB, 
+                             newdata = dat_filtered,
+                             re.form = ~ 0,
+                             se.fit = TRUE)
+dat_filtered$pred_fixed_fit <- exp(fixed_predictions$fit)
+dat_filtered$pred_fixed_se_lci <- exp(fixed_predictions$fit-
+                                        fixed_predictions$se.fit)
+dat_filtered$pred_fixed_se_uci <- exp(fixed_predictions$fit+
+                                        fixed_predictions$se.fit)
+
+p_volume_x_site <- ggplot(aes(x = spheroid.volume.ml,
+                                y = volumetric_rate), data = dat_filtered)+
+  geom_point(aes(color = habitat, shape = habitat), size = 3, alpha = 0.5)+
+  geom_line(aes(y = pred_fixed_fit, color = habitat))+
+  geom_ribbon(aes(ymin = pred_fixed_se_lci, 
+                  ymax = pred_fixed_se_uci, fill = habitat), alpha = 0.5)+
+  scale_color_manual(values = plot_colors)+
+  scale_fill_manual(values = plot_colors)+
+  scale_x_continuous(trans = "log10")+
+  annotation_logticks(sides = "b")+
+  facet_wrap(vars(site))+
+  xlab("Wet Mass (g)")+
+  labs(y=expression(VO["2"]*" (mgO"["2"]*"h"^-1*")"))+
+  gg_options()+
+  theme(legend.position = c(0.1,0.8));
+
+p_volume_x_site
+
 # RMR Analysis (Total Ash-Free Dry Mass): effect of habitat  ------------------------
 # Model selection: Fit several reasonable GLMMs for fixed effects on volumetric
 # oxygen consumption rate using Restricted Maximum Likelihood. 
