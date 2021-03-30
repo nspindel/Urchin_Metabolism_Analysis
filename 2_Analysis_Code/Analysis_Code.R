@@ -1,5 +1,5 @@
 ###############################################################################
-# Analysis code for "Zombies of the Nearshore: metabolic depression in sea    #
+# Analysis code for "Metabolic depression in sea                              #
 # urchin barrens associated with food deprivation."                           #                          #
 #                                                                             #
 # Authors: N_B_ Spindel & D_K_ Okamoto                                        #
@@ -98,6 +98,7 @@ AICc(f1, f2, f3, f4, f5, f6, f7, f8, f9)
 
 f5 <- update(f5, REML = FALSE)
 fit_glmmTMB <- f5
+
 # Model diagnostics
 simulation_output <- simulateResiduals(fit_glmmTMB, n = 250)
 
@@ -117,6 +118,8 @@ wet_mass_x_site_anova <- glmmTMB:::Anova.glmmTMB(
 
 # Render test results
 wet_mass_x_site_anova
+
+summary(fit_glmmTMB)
 
 # Visualize predictions and data 
 fixed_predictions <- predict(object = fit_glmmTMB, 
@@ -168,6 +171,7 @@ AICc(f1, f2, f3, f4, f5, f6, f7, f8, f9)
 
 f5 <- update(f5, REML = FALSE)
 fit_glmmTMB <- f5
+
 # Model diagnostics
 simulation_output <- simulateResiduals(fit_glmmTMB, n = 250)
 
@@ -187,6 +191,8 @@ volume_x_site_anova <- glmmTMB:::Anova.glmmTMB(
 
 # Render test results
 volume_x_site_anova
+
+summary(fit_glmmTMB)
 
 # Visualize predictions and data 
 fixed_predictions <- predict(object = fit_glmmTMB, 
@@ -210,7 +216,7 @@ p_volume_x_site <- ggplot(aes(x = spheroid.volume.ml,
   scale_x_continuous(trans = "log10")+
   annotation_logticks(sides = "b")+
   facet_wrap(vars(site))+
-  xlab("Wet Mass (g)")+
+  xlab("Test Volume (mL)")+
   labs(y=expression(VO["2"]*" (mgO"["2"]*"h"^-1*")"))+
   gg_options()+
   theme(legend.position = c(0.1,0.8));
@@ -256,6 +262,8 @@ afdm_anova <- glmmTMB:::Anova.glmmTMB(
 
 # Render test results
 afdm_anova
+
+summary(fit_glmmTMB)
 
 # Visualize predictions and data 
 fixed_predictions <- predict(object = fit_glmmTMB, 
@@ -323,6 +331,8 @@ gonad_afdm_anova <- glmmTMB:::Anova.glmmTMB(
 
 # Render test results
 gonad_afdm_anova
+
+summary(fit_glmmTMB)
 
 # Visualize predictions and data 
 fixed_predictions <- predict(object = fit_glmmTMB, 
@@ -413,6 +423,8 @@ gonad_anova <- glmmTMB:::Anova.glmmTMB(
 
 # Render test results
 gonad_anova
+
+summary(fit_glmmTMB)
 
 # Visualize predictions and data 
 fixed_predictions <- predict(object = fit_glmmTMB, 
