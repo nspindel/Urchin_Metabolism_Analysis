@@ -18,13 +18,13 @@ library(car)
 library(cowplot)
 
 # Load functions --------------------------------------------------------------
-source("./2_Analysis_Code/Functions.R")
+source("./Functions.R")
 
 # Set general plot aesthetics
 plot_colors <- c("red", "blue")
 
 # Load data -------------------------------------------------------------------
-dat <- read_excel("./1_Data/Respirometry_Data_M_franciscanus_Ecology_March_2021.xlsx", 
+dat <- read_excel("./Respirometry_Data_M_franciscanus_Ecology_March_2021.xlsx", 
                   sheet = 1)
 dat$date <- as.character(dat$date)
 dat <- dat %>% 
@@ -296,13 +296,13 @@ p_afdm
 # RMR Analysis (Gonadal Ash-Free Dry Mass): effect of habitat  ----------------
 # Model selection: Fit several reasonable GLMMs for fixed effects on volumetric
 # oxygen consumption rate using Restricted Maximum Likelihood. 
-f1 <- glmmTMB(volumetric_rate ~ log(gonad.afdm.g.total.approx) + (1 | date/chamber_id), 
+f1 <- glmmTMB(volumetric_rate ~ log(gonad_afdm_g_total_approx) + (1 | date/chamber_id), 
               data = dat_filtered_AFDM,
               family = gaussian(link = "log"),
               REML = TRUE)
-f2 <- update(f1, formula = . ~ log(gonad.afdm.g.total.approx) + habitat + (1 | date/chamber_id))
-f3 <- update(f1, formula = . ~ log(gonad.afdm.g.total.approx) * habitat + (1 | date/chamber_id))
-f4 <- update(f1, formula = . ~ log(gonad.afdm.g.total.approx) : habitat + (1 | date/chamber_id))
+f2 <- update(f1, formula = . ~ log(gonad_afdm_g_total_approx) + habitat + (1 | date/chamber_id))
+f3 <- update(f1, formula = . ~ log(gonad_afdm_g_total_approx) * habitat + (1 | date/chamber_id))
+f4 <- update(f1, formula = . ~ log(gonad_afdm_g_total_approx) : habitat + (1 | date/chamber_id))
 
 # Calculate Second-order Akaike Information Criterion for various model fits.
 AICc(f1, f2, f3, f4)
@@ -345,7 +345,7 @@ dat_filtered_AFDM$pred_fixed_se_lci <- exp(fixed_predictions$fit-
 dat_filtered_AFDM$pred_fixed_se_uci <- exp(fixed_predictions$fit+
                                                         fixed_predictions$se.fit)
 
-p_gonad_afdm <- ggplot(aes(x = gonad.afdm.g.total.approx, 
+p_gonad_afdm <- ggplot(aes(x = gonad_afdm_g_total_approx, 
                          y = volumetric_rate), data = dat_filtered_AFDM)+
   geom_point(aes(color = habitat, shape = habitat), size = 3, alpha = 0.5)+
   geom_line(aes(y = pred_fixed_fit, color = habitat))+
