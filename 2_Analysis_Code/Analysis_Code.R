@@ -24,7 +24,7 @@ source("./2_Analysis_Code/Functions.R")
 plot_colors <- c("red", "blue")
 
 # Load data -------------------------------------------------------------------
-dat <- read_excel("./1_Data/Respirometry_Data_M_franciscanus.xlsx", 
+dat <- read_excel("./1_Data/Respirometry_Data_M_franciscanus_Ecology_March_2021.xlsx", 
                   sheet = 1)
 dat$date <- as.character(dat$date)
 dat <- dat %>% 
@@ -65,7 +65,7 @@ dat_filtered <- dat %>%
 # Data frame of wild M. franciscanus with AFDM measurements
 dat_filtered_AFDM <- dat_filtered %>%
   filter(
-      !is.na(whole.afdm.g.approx)
+      !is.na(whole_afdm_g_approx)
   ) %>%
   mutate(
     habitat = as.factor(habitat),
@@ -153,18 +153,18 @@ p_wet_mass_x_site
 # RMR Analysis (Test Volume): effects of site and habitat  --------------------
 # Model selection: Fit several reasonable GLMMs for fixed effects on volumetric
 # oxygen consumption rate using Restricted Maximum Likelihood. 
-f1 <- glmmTMB(volumetric_rate ~ log(spheroid.volume.ml) + (1 | date/chamber_id), 
+f1 <- glmmTMB(volumetric_rate ~ log(spheroid_volume_ml) + (1 | date/chamber_id), 
               data = dat_filtered,
               family = gaussian(link = "log"),
               REML = TRUE)
-f2 <- update(f1, formula = . ~ log(spheroid.volume.ml) + habitat + (1 | date/chamber_id))
-f3 <- update(f1, formula = . ~ log(spheroid.volume.ml) + habitat + site + (1 | date/chamber_id))
-f4 <- update(f1, formula = . ~ log(spheroid.volume.ml) * habitat + site + (1 | date/chamber_id))
-f5 <- update(f1, formula = . ~ log(spheroid.volume.ml) + habitat * site + (1 | date/chamber_id))
-f6 <- update(f1, formula = . ~ log(spheroid.volume.ml) * habitat * site + (1 | date/chamber_id))
-f7 <- update(f1, formula = . ~ log(spheroid.volume.ml) : habitat + site + (1 | date/chamber_id))
-f8 <- update(f1, formula = . ~ log(spheroid.volume.ml) : habitat : site + (1 | date/chamber_id))
-f9 <- update(f1, formula = . ~ log(spheroid.volume.ml) : habitat * site + (1 | date/chamber_id))
+f2 <- update(f1, formula = . ~ log(spheroid_volume_ml) + habitat + (1 | date/chamber_id))
+f3 <- update(f1, formula = . ~ log(spheroid_volume_ml) + habitat + site + (1 | date/chamber_id))
+f4 <- update(f1, formula = . ~ log(spheroid_volume_ml) * habitat + site + (1 | date/chamber_id))
+f5 <- update(f1, formula = . ~ log(spheroid_volume_ml) + habitat * site + (1 | date/chamber_id))
+f6 <- update(f1, formula = . ~ log(spheroid_volume_ml) * habitat * site + (1 | date/chamber_id))
+f7 <- update(f1, formula = . ~ log(spheroid_volume_ml) : habitat + site + (1 | date/chamber_id))
+f8 <- update(f1, formula = . ~ log(spheroid_volume_ml) : habitat : site + (1 | date/chamber_id))
+f9 <- update(f1, formula = . ~ log(spheroid_volume_ml) : habitat * site + (1 | date/chamber_id))
 
 # Calculate Second-order Akaike Information Criterion for various model fits.
 AICc(f1, f2, f3, f4, f5, f6, f7, f8, f9)
@@ -205,7 +205,7 @@ dat_filtered$pred_fixed_se_lci <- exp(fixed_predictions$fit-
 dat_filtered$pred_fixed_se_uci <- exp(fixed_predictions$fit+
                                         fixed_predictions$se.fit)
 
-p_volume_x_site <- ggplot(aes(x = spheroid.volume.ml,
+p_volume_x_site <- ggplot(aes(x = spheroid_volume_ml,
                                 y = volumetric_rate), data = dat_filtered)+
   geom_point(aes(color = habitat, shape = habitat), size = 3, alpha = 0.5)+
   geom_line(aes(y = pred_fixed_fit, color = habitat))+
@@ -226,14 +226,14 @@ p_volume_x_site
 # RMR Analysis (Total Ash-Free Dry Mass): effect of habitat  ------------------------
 # Model selection: Fit several reasonable GLMMs for fixed effects on volumetric
 # oxygen consumption rate using Restricted Maximum Likelihood. 
-f1 <- glmmTMB(volumetric_rate ~ log(whole.afdm.g.approx) + (1 | date/chamber_id),
-              dispformula = ~ log(whole.afdm.g.approx)*habitat, # account for heteroskedasticity
+f1 <- glmmTMB(volumetric_rate ~ log(whole_afdm_g_approx) + (1 | date/chamber_id),
+              dispformula = ~ log(whole_afdm_g_approx)*habitat, # account for heteroskedasticity
               data = dat_filtered_AFDM,
               family = gaussian(link = "log"),
               REML = TRUE)
-f2 <- update(f1, formula = . ~ log(whole.afdm.g.approx) + habitat + (1 | date/chamber_id))
-f3 <- update(f1, formula = . ~ log(whole.afdm.g.approx) * habitat + (1 | date/chamber_id))
-f4 <- update(f1, formula = . ~ log(whole.afdm.g.approx) : habitat + (1 | date/chamber_id))
+f2 <- update(f1, formula = . ~ log(whole_afdm_g_approx) + habitat + (1 | date/chamber_id))
+f3 <- update(f1, formula = . ~ log(whole_afdm_g_approx) * habitat + (1 | date/chamber_id))
+f4 <- update(f1, formula = . ~ log(whole_afdm_g_approx) : habitat + (1 | date/chamber_id))
 
 # Calculate Second-order Akaike Information Criterion for various model fits.
 AICc(f1, f2, f3, f4)
@@ -276,7 +276,7 @@ dat_filtered_AFDM$pred_fixed_se_lci <- exp(fixed_predictions$fit-
 dat_filtered_AFDM$pred_fixed_se_uci <- exp(fixed_predictions$fit+
                                                  fixed_predictions$se.fit)
 
-p_afdm <- ggplot(aes(x = whole.afdm.g.approx, 
+p_afdm <- ggplot(aes(x = whole_afdm_g_approx, 
                                  y = volumetric_rate), data = dat_filtered_AFDM)+
   geom_point(aes(color = habitat, shape = habitat), size = 3, alpha = 0.5)+
   geom_line(aes(y = pred_fixed_fit, color = habitat))+
@@ -382,19 +382,19 @@ RMR_multiplot_hab_x_site
 # Gonad Content Analysis: effects of site and habitat -------------------------
 # Model selection: Fit several reasonable GLMMs for fixed effects on gonad
 # content using Restricted Maximum Likelihood. 
-f1 <- glmmTMB(formula = total_gonad_approx_g ~ log(spheroid.volume.ml),
+f1 <- glmmTMB(formula = total_gonad_approx_g ~ log(spheroid_volume_ml),
               dispformula = ~ habitat * site, # account for heteroskedasticity
               data = dat_filtered,
               family = gaussian(link = "log"),
               REML = TRUE)
-f2 <- update(f1, formula = . ~ log(spheroid.volume.ml) + habitat)
-f3 <- update(f1, formula = . ~ log(spheroid.volume.ml) + habitat + site)
-f4 <- update(f1, formula = . ~ log(spheroid.volume.ml) * habitat + site)
-f5 <- update(f1, formula = . ~ log(spheroid.volume.ml) + habitat * site)
-f6 <- update(f1, formula = . ~ log(spheroid.volume.ml) * habitat * site)
-f7 <- update(f1, formula = . ~ log(spheroid.volume.ml) : habitat + site)
-f8 <- update(f1, formula = . ~ log(spheroid.volume.ml) : habitat : site)
-f9 <- update(f1, formula = . ~ log(spheroid.volume.ml) : habitat * site)
+f2 <- update(f1, formula = . ~ log(spheroid_volume_ml) + habitat)
+f3 <- update(f1, formula = . ~ log(spheroid_volume_ml) + habitat + site)
+f4 <- update(f1, formula = . ~ log(spheroid_volume_ml) * habitat + site)
+f5 <- update(f1, formula = . ~ log(spheroid_volume_ml) + habitat * site)
+f6 <- update(f1, formula = . ~ log(spheroid_volume_ml) * habitat * site)
+f7 <- update(f1, formula = . ~ log(spheroid_volume_ml) : habitat + site)
+f8 <- update(f1, formula = . ~ log(spheroid_volume_ml) : habitat : site)
+f9 <- update(f1, formula = . ~ log(spheroid_volume_ml) : habitat * site)
 
 # Calculate Second-order Akaike Information Criterion for various model fits.
 AICc(f1, f2, f3, f4, f5, f6, f7, f8, f9)
@@ -437,7 +437,7 @@ dat_filtered$pred_fixed_se_lci <- exp(fixed_predictions$fit-
 dat_filtered$pred_fixed_se_uci <- exp(fixed_predictions$fit+
                                              fixed_predictions$se.fit)
 
-p_gonad <- ggplot(aes(x = spheroid.volume.ml, 
+p_gonad <- ggplot(aes(x = spheroid_volume_ml, 
                            y = total_gonad_approx_g), data = dat_filtered)+
   geom_point(aes(color = habitat, shape = habitat), size = 3, alpha = 0.5)+
   geom_line(aes(y = pred_fixed_fit, color = habitat))+
@@ -449,7 +449,7 @@ p_gonad <- ggplot(aes(x = spheroid.volume.ml,
   annotation_logticks(sides = "b")+
   facet_wrap(vars(site))+
   xlab("Test Volume (mL)")+
-  labs(y=expression(VO["2"]*" (mgO"["2"]*"h"^-1*")"))+
+  ylab("Gonadal Wet Mass (g)")+
   gg_options()+
   theme(legend.position = "");
 
